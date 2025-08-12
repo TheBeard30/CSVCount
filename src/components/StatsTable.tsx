@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { BarChart3 } from 'lucide-react'
+import { BarChart3, Table as TableIcon, PieChart } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import {
   Table,
@@ -11,14 +11,18 @@ import {
 } from '@/components/ui/table'
 import { StatsReport } from '@/types'
 import { Button } from './ui/button'
+import { StatsChart } from './StatsChart'
 
 interface StatsTableProps {
   report: StatsReport | null
   className?: string
 }
 
+type ViewMode = 'table' | 'chart'
+
 export const StatsTable: React.FC<StatsTableProps> = ({ report, className }) => {
   const [activeTab, setActiveTab] = useState<string | null>(null)
+  const [viewMode, setViewMode] = useState<ViewMode>('table')
 
   useEffect(() => {
     if (report && report.fieldStats.length > 0) {
@@ -58,22 +62,42 @@ export const StatsTable: React.FC<StatsTableProps> = ({ report, className }) => 
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
         <div className="flex-shrink-0 px-4 pt-2 border-b">
-          <div className="flex space-x-2">
-            {report.fieldStats.map((fieldStat) => (
+          <div className="flex items-center justify-between">
+            <div className="flex space-x-2">
+              {report.fieldStats.map((fieldStat) => (
+                <Button
+                  key={fieldStat.fieldName}
+                  variant={activeTab === fieldStat.fieldName ? 'secondary' : 'ghost'}
+                  size="sm"
+                  onClick={() => setActiveTab(fieldStat.fieldName)}
+                  className="rounded-t-md"
+                >
+                  {fieldStat.fieldName}
+                </Button>
+              ))}
+            </div>
+            <div className="flex space-x-1">
               <Button
-                key={fieldStat.fieldName}
-                variant={activeTab === fieldStat.fieldName ? 'secondary' : 'ghost'}
+                variant={viewMode === 'table' ? 'default' : 'ghost'}
                 size="sm"
-                onClick={() => setActiveTab(fieldStat.fieldName)}
-                className="rounded-t-md"
+                onClick={() => setViewMode('table')}
               >
-                {fieldStat.fieldName}
+                <TableIcon className="h-4 w-4 mr-1" />
+                表格
               </Button>
-            ))}
+              <Button
+                variant={viewMode === 'chart' ? 'default' : 'ghost'}
+                size="sm"
+                onClick={() => setViewMode('chart')}
+              >
+                <BarChart3 className="h-4 w-4 mr-1" />
+                图表
+              </Button>
+            </div>
           </div>
         </div>
 
-        {activeFieldStat && (
+        {activeFieldStat && viewMode === 'table' && (
           <div className="flex-1 overflow-y-auto p-4 space-y-4">
             <div className="flex items-center justify-between text-sm text-muted-foreground">
               <span>总数: {activeFieldStat.totalCount}</span>
@@ -112,6 +136,12 @@ export const StatsTable: React.FC<StatsTableProps> = ({ report, className }) => 
                 共 {activeFieldStat.values.length} 个不同值
               </p>
             )}
+          </div>
+        )}
+        
+        {viewMode === 'chart' && (
+          <div className="flex-1 overflow-hidden p-4">
+            <StatsChart report={report} activeField={activeTab} />
           </div>
         )}
       </CardContent>
