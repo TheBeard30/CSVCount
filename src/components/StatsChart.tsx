@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Treemap, LineChart, Line } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Treemap, LineChart, Line, AreaChart, Area } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { BarChart3, TrendingUp, Grid3X3, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -71,6 +71,12 @@ export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) =
   const renderBarChart = () => (
     <ResponsiveContainer width="100%" height={300}>
       <BarChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <defs>
+          <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#8884d8" stopOpacity={0.8} />
+            <stop offset="100%" stopColor="#8884d8" stopOpacity={0.1} />
+          </linearGradient>
+        </defs>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis 
           dataKey="name" 
@@ -81,7 +87,11 @@ export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) =
         />
         <YAxis />
         <Tooltip />
-        <Bar dataKey="value" fill="#8884d8" />
+        <Bar 
+          dataKey="value" 
+          fill="url(#barGradient)" 
+          radius={[4, 4, 0, 0]}
+        />
       </BarChart>
     </ResponsiveContainer>
   )
@@ -108,7 +118,13 @@ export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) =
 
   const renderLineChart = () => (
     <ResponsiveContainer width="100%" height={300}>
-      <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+      <AreaChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <defs>
+          <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor="#82ca9d" stopOpacity={0.6} />
+            <stop offset="100%" stopColor="#82ca9d" stopOpacity={0} />
+          </linearGradient>
+        </defs>
         <CartesianGrid strokeDasharray="3 3" />
         <XAxis 
           dataKey="name" 
@@ -119,15 +135,15 @@ export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) =
         />
         <YAxis />
         <Tooltip />
-        <Line 
+        <Area 
           type="monotone" 
           dataKey="value" 
-          stroke="#8884d8" 
-          strokeWidth={3}
-          dot={{ fill: '#8884d8', strokeWidth: 2, r: 4 }}
-          activeDot={{ r: 6, stroke: '#8884d8', strokeWidth: 2 }}
+          stroke="#82ca9d" 
+          strokeWidth={2}
+          fill="url(#areaGradient)"
+          dot={{ fill: '#82ca9d', strokeWidth: 2, r: 4 }}
         />
-      </LineChart>
+      </AreaChart>
     </ResponsiveContainer>
   )
 
