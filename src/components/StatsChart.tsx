@@ -47,8 +47,8 @@ export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) =
     return null
   }
 
-  // 取前10个数据用于图表展示
-  const chartData = activeFieldStat.values.slice(0, 10).map((item, index) => ({
+  // 显示所有数据
+  const chartData = activeFieldStat.values.map((item, index) => ({
     name: item.value === null ? 'null' : String(item.value),
     value: item.count,
     fill: COLORS[index % COLORS.length]
