@@ -94,6 +94,7 @@ const FileUploader: React.FC<FileUploaderProps> = ({ onFilesChange, className })
           onDrop={handleDrop}
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
+          data-guide="file-uploader"
         >
           <Upload className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
           <h3 className="text-lg font-semibold mb-2">

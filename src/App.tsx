@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react'
 import { FileText, BarChart3 } from 'lucide-react'
 import Header from '@/components/Header'
+import OnboardingGuide from '@/components/OnboardingGuide'
 import FileUploader from '@/components/FileUploader'
 import FloatingFileList from '@/components/FloatingFileList'
 import FieldSelector from '@/components/FieldSelector'
 import { StatsTable } from '@/components/StatsTable'
 import ExportButton from '@/components/ExportButton'
+import { useOnboarding } from '@/hooks/useOnboarding'
 import { UploadedFile, StatsReport } from '@/types'
 import { generateStatsReport, getMergedFields } from '@/utils/stats'
 import { getAllFiles, getLastReport } from '@/services/storage'
@@ -15,6 +17,13 @@ const App: React.FC = () => {
   const [selectedFields, setSelectedFields] = useState<string[]>([])
   const [statsReport, setStatsReport] = useState<StatsReport | null>(null)
   const [isGenerating, setIsGenerating] = useState(false)
+  
+  // 引导功能
+  const { isOnboardingVisible, currentStep, closeOnboarding, showOnboarding } = useOnboarding(
+    files, 
+    selectedFields, 
+    statsReport
+  )
 
   // 加载本地存储的数据
   useEffect(() => {
@@ -67,7 +76,14 @@ const App: React.FC = () => {
 
   return (
     <div className="h-screen bg-background flex flex-col">
-      <Header />
+      <Header onShowOnboarding={showOnboarding} />
+      
+      {/* 引导组件 */}
+      <OnboardingGuide 
+        isVisible={isOnboardingVisible} 
+        onClose={closeOnboarding}
+        currentStep={currentStep}
+      />
       
       <div className="flex-1 flex gap-4 p-4 min-h-0">
         {/* Left Panel */}

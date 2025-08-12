@@ -56,7 +56,7 @@ export const StatsTable: React.FC<StatsTableProps> = ({ report, className }) => 
   )
 
   return (
-    <Card className={`${className} flex flex-col`}>
+    <Card className={`${className} flex flex-col`} data-guide="stats-table">
       <CardHeader className="flex-shrink-0">
         <CardTitle className="text-lg">统计结果</CardTitle>
       </CardHeader>

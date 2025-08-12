@@ -73,7 +73,7 @@ const FieldSelector: React.FC<FieldSelectorProps> = ({
   }
 
   return (
-    <Card className={`${className} flex flex-col h-full`}>
+    <Card className={`${className} flex flex-col h-full`} data-guide="field-selector">
       <CardHeader className="flex-shrink-0">
         <div className="flex items-center justify-between">
           <CardTitle className="text-lg">

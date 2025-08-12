@@ -42,6 +42,7 @@ const FloatingFileList: React.FC<FloatingFileListProps> = ({ files, onFilesChang
         onClick={() => setIsOpen(true)}
         className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-lg z-50"
         size="icon"
+        data-guide="file-list"
       >
         <Files className="h-6 w-6" />
         {files.length > 0 && (
