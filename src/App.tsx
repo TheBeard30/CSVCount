@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { FileText, BarChart3 } from 'lucide-react'
+import Header from '@/components/Header'
 import FileUploader from '@/components/FileUploader'
 import FloatingFileList from '@/components/FloatingFileList'
 import FieldSelector from '@/components/FieldSelector'
@@ -65,46 +66,50 @@ const App: React.FC = () => {
   const availableFields = getMergedFields(files)
 
   return (
-    <div className="h-screen bg-background flex gap-4 p-4">
-      {/* Left Panel */}
-      <div className="w-1/3 flex flex-col gap-4">
-        <div className="flex-shrink-0">
-          <FileUploader onFilesChange={handleFilesChange} />
-        </div>
-        
-        {availableFields.length > 0 && (
-          <div className="flex-1 min-h-0">
-            <FieldSelector
-              fields={availableFields}
-              selectedFields={selectedFields}
-              onSelectionChange={setSelectedFields}
-            />
-          </div>
-        )}
-      </div>
-
-      {/* Right Panel */}
-      <div className="w-2/3 flex flex-col gap-4">
-        {statsReport && (
-          <div className="flex-shrink-0 flex items-center justify-between">
-            <div className="flex items-center space-x-2">
-              <BarChart3 className="h-5 w-5 text-primary" />
-              <span className="font-medium">统计结果</span>
-              {isGenerating && (
-                <span className="text-sm text-muted-foreground">生成中...</span>
-              )}
-            </div>
-            <ExportButton report={statsReport} disabled={isGenerating} />
-          </div>
-        )}
-        
-        <div className="flex-1 min-h-0">
-          <StatsTable report={statsReport} className="h-full" />
-        </div>
-      </div>
+    <div className="h-screen bg-background flex flex-col">
+      <Header />
       
-      {/* 浮动文件列表 */}
-      <FloatingFileList files={files} onFilesChange={handleFilesChange} />
+      <div className="flex-1 flex gap-4 p-4 min-h-0">
+        {/* Left Panel */}
+        <div className="w-1/3 flex flex-col gap-4">
+          <div className="flex-shrink-0">
+            <FileUploader onFilesChange={handleFilesChange} />
+          </div>
+          
+          {availableFields.length > 0 && (
+            <div className="flex-1 min-h-0">
+              <FieldSelector
+                fields={availableFields}
+                selectedFields={selectedFields}
+                onSelectionChange={setSelectedFields}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Right Panel */}
+        <div className="w-2/3 flex flex-col gap-4">
+          {statsReport && (
+            <div className="flex-shrink-0 flex items-center justify-between">
+              <div className="flex items-center space-x-2">
+                <BarChart3 className="h-5 w-5 text-primary" />
+                <span className="font-medium">统计结果</span>
+                {isGenerating && (
+                  <span className="text-sm text-muted-foreground">生成中...</span>
+                )}
+              </div>
+              <ExportButton report={statsReport} disabled={isGenerating} />
+            </div>
+          )}
+          
+          <div className="flex-1 min-h-0">
+            <StatsTable report={statsReport} className="h-full" />
+          </div>
+        </div>
+        
+        {/* 浮动文件列表 */}
+        <FloatingFileList files={files} onFilesChange={handleFilesChange} />
+      </div>
     </div>
   )
 }
