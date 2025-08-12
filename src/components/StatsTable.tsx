@@ -62,7 +62,7 @@ export const StatsTable: React.FC<StatsTableProps> = ({ report, className }) => 
       </CardHeader>
       <CardContent className="flex-1 overflow-hidden p-0 flex flex-col">
         <div className="flex-shrink-0 px-4 pt-2 border-b">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex space-x-2">
               {report.fieldStats.map((fieldStat) => (
                 <Button

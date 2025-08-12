@@ -1,8 +1,9 @@
 import React, { useState } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { BarChart3, PieChart as PieChartIcon } from 'lucide-react'
+import { Slider } from '@/components/ui/slider'
+import { BarChart3, PieChart as PieChartIcon, TrendingUp } from 'lucide-react'
 import { StatsReport } from '@/types'
 
 interface StatsChartProps {
@@ -10,7 +11,7 @@ interface StatsChartProps {
   activeField: string | null
 }
 
-type ChartType = 'bar' | 'pie'
+type ChartType = 'bar' | 'pie' | 'line'
 
 const COLORS = [
   '#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8',
@@ -19,6 +20,7 @@ const COLORS = [
 
 export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) => {
   const [chartType, setChartType] = useState<ChartType>('bar')
+  const [sliderValue, setSliderValue] = useState([0])
 
   if (!report || !activeField) {
     return (
@@ -94,6 +96,31 @@ export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) =
     </ResponsiveContainer>
   )
 
+  const renderLineChart = () => (
+    <ResponsiveContainer width="100%" height={300}>
+      <LineChart data={chartData} margin={{ top: 20, right: 30, left: 20, bottom: 5 }}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis 
+          dataKey="name" 
+          angle={-45}
+          textAnchor="end"
+          height={80}
+          interval={0}
+        />
+        <YAxis />
+        <Tooltip />
+        <Line 
+          type="monotone" 
+          dataKey="value" 
+          stroke="#8884d8" 
+          strokeWidth={3}
+          dot={{ fill: '#8884d8', strokeWidth: 2, r: 4 }}
+          activeDot={{ r: 6, stroke: '#8884d8', strokeWidth: 2 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  )
+
   return (
     <Card className="h-full">
       <CardHeader>
@@ -102,19 +129,29 @@ export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) =
             <BarChart3 className="h-5 w-5" />
             <span>数据图表 - {activeField}</span>
           </CardTitle>
-          <div className="flex space-x-2">
-            <Button
-              variant={chartType === 'bar' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setChartType('bar')}
-            >
-              <BarChart3 className="h-4 w-4 mr-1" />
-              柱状图
-            </Button>
+          <div className="flex items-center space-x-4">
+            <div className="flex items-center space-x-2">
+              <span className="text-sm text-muted-foreground">柱状图</span>
+              <Slider
+                value={sliderValue}
+                onValueChange={(value) => {
+                  setSliderValue(value)
+                  if (value[0] === 0) setChartType('bar')
+                  else if (value[0] === 1) setChartType('line')
+                }}
+                max={1}
+                step={1}
+                className="w-16"
+              />
+              <span className="text-sm text-muted-foreground">线图</span>
+            </div>
             <Button
               variant={chartType === 'pie' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => setChartType('pie')}
+              onClick={() => {
+                setChartType('pie')
+                setSliderValue([0]) // 重置slider到柱状图位置
+              }}
             >
               <PieChartIcon className="h-4 w-4 mr-1" />
               饼图
@@ -127,10 +164,12 @@ export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) =
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>总数: {activeFieldStat.totalCount}</span>
             <span>去重: {activeFieldStat.uniqueCount}</span>
-            <span>显示前 {Math.min(10, activeFieldStat.values.length)} 项</span>
+            <span>显示 {activeFieldStat.values.length} 项数据</span>
           </div>
         </div>
-        {chartType === 'bar' ? renderBarChart() : renderPieChart()}
+        {chartType === 'bar' && renderBarChart()}
+        {chartType === 'line' && renderLineChart()}
+        {chartType === 'pie' && renderPieChart()}
       </CardContent>
     </Card>
   )
