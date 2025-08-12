@@ -14,7 +14,7 @@
 
 ## 技术栈
 
-- **前端框架**: React 18 + TypeScript
+- **前端框架**: React + TypeScript
 - **构建工具**: Vite
 - **样式方案**: TailwindCSS + shadcn/ui
 - **文件解析**: Papa Parse (CSV) + SheetJS (Excel)
