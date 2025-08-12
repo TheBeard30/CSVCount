@@ -1,9 +1,8 @@
 import React, { useState } from 'react'
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line } from 'recharts'
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Treemap, LineChart, Line } from 'recharts'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Slider } from '@/components/ui/slider'
-import { BarChart3, PieChart as PieChartIcon, TrendingUp } from 'lucide-react'
+import { BarChart3, TrendingUp, Grid3X3, ChevronLeft, ChevronRight } from 'lucide-react'
 import { StatsReport } from '@/types'
 
 interface StatsChartProps {
@@ -11,16 +10,18 @@ interface StatsChartProps {
   activeField: string | null
 }
 
-type ChartType = 'bar' | 'pie' | 'line'
+type ChartType = 'bar' | 'treemap' | 'line'
 
 const COLORS = [
   '#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8',
   '#82CA9D', '#FFC658', '#FF7C7C', '#8DD1E1', '#D084D0'
 ]
 
+const ITEMS_PER_PAGE = 20
+
 export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) => {
   const [chartType, setChartType] = useState<ChartType>('bar')
-  const [sliderValue, setSliderValue] = useState([0])
+  const [currentPage, setCurrentPage] = useState(0)
 
   if (!report || !activeField) {
     return (
@@ -49,12 +50,23 @@ export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) =
     return null
   }
 
-  // 显示所有数据
-  const chartData = activeFieldStat.values.map((item, index) => ({
+  // 分页处理数据
+  const totalItems = activeFieldStat.values.length
+  const totalPages = Math.ceil(totalItems / ITEMS_PER_PAGE)
+  const startIndex = currentPage * ITEMS_PER_PAGE
+  const endIndex = Math.min(startIndex + ITEMS_PER_PAGE, totalItems)
+  
+  const paginatedData = activeFieldStat.values.slice(startIndex, endIndex)
+  const chartData = paginatedData.map((item, index) => ({
     name: item.value === null ? 'null' : String(item.value),
     value: item.count,
     fill: COLORS[index % COLORS.length]
   }))
+
+  // 重置页码当切换图表类型时
+  React.useEffect(() => {
+    setCurrentPage(0)
+  }, [chartType])
 
   const renderBarChart = () => (
     <ResponsiveContainer width="100%" height={300}>
@@ -74,27 +86,25 @@ export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) =
     </ResponsiveContainer>
   )
 
-  const renderPieChart = () => (
-    <ResponsiveContainer width="100%" height={300}>
-      <PieChart>
-        <Pie
-          data={chartData}
-          cx="50%"
-          cy="50%"
-          labelLine={false}
-          label={({ name, percent }) => `${name} (${((percent || 0) * 100).toFixed(0)}%)`}
-          outerRadius={80}
+  const renderTreemap = () => {
+    const treemapData = chartData.map((item, index) => ({
+      name: item.name,
+      size: item.value,
+      fill: COLORS[index % COLORS.length]
+    }))
+
+    return (
+      <ResponsiveContainer width="100%" height={300}>
+        <Treemap
+          data={treemapData}
+          dataKey="size"
+          aspectRatio={4/3}
+          stroke="#fff"
           fill="#8884d8"
-          dataKey="value"
-        >
-          {chartData.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.fill} />
-          ))}
-        </Pie>
-        <Tooltip />
-      </PieChart>
-    </ResponsiveContainer>
-  )
+        />
+      </ResponsiveContainer>
+    )
+  }
 
   const renderLineChart = () => (
     <ResponsiveContainer width="100%" height={300}>
@@ -129,32 +139,30 @@ export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) =
             <BarChart3 className="h-5 w-5" />
             <span>数据图表 - {activeField}</span>
           </CardTitle>
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground">柱状图</span>
-              <Slider
-                value={sliderValue}
-                onValueChange={(value) => {
-                  setSliderValue(value)
-                  if (value[0] === 0) setChartType('bar')
-                  else if (value[0] === 1) setChartType('line')
-                }}
-                max={1}
-                step={1}
-                className="w-16"
-              />
-              <span className="text-sm text-muted-foreground">线图</span>
-            </div>
+          <div className="flex items-center space-x-2">
             <Button
-              variant={chartType === 'pie' ? 'default' : 'outline'}
+              variant={chartType === 'bar' ? 'default' : 'outline'}
               size="sm"
-              onClick={() => {
-                setChartType('pie')
-                setSliderValue([0]) // 重置slider到柱状图位置
-              }}
+              onClick={() => setChartType('bar')}
             >
-              <PieChartIcon className="h-4 w-4 mr-1" />
-              饼图
+              <BarChart3 className="h-4 w-4 mr-1" />
+              柱状图
+            </Button>
+            <Button
+              variant={chartType === 'line' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setChartType('line')}
+            >
+              <TrendingUp className="h-4 w-4 mr-1" />
+              线图
+            </Button>
+            <Button
+              variant={chartType === 'treemap' ? 'default' : 'outline'}
+              size="sm"
+              onClick={() => setChartType('treemap')}
+            >
+              <Grid3X3 className="h-4 w-4 mr-1" />
+              树状图
             </Button>
           </div>
         </div>
@@ -164,12 +172,35 @@ export const StatsChart: React.FC<StatsChartProps> = ({ report, activeField }) =
           <div className="flex items-center justify-between text-sm text-muted-foreground">
             <span>总数: {activeFieldStat.totalCount}</span>
             <span>去重: {activeFieldStat.uniqueCount}</span>
-            <span>显示 {activeFieldStat.values.length} 项数据</span>
+            <span>显示 {startIndex + 1}-{endIndex} 项，共 {totalItems} 项数据</span>
           </div>
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center space-x-2 mt-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(Math.max(0, currentPage - 1))}
+                disabled={currentPage === 0}
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <span className="text-sm text-muted-foreground">
+                第 {currentPage + 1} 页，共 {totalPages} 页
+              </span>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setCurrentPage(Math.min(totalPages - 1, currentPage + 1))}
+                disabled={currentPage === totalPages - 1}
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          )}
         </div>
         {chartType === 'bar' && renderBarChart()}
         {chartType === 'line' && renderLineChart()}
-        {chartType === 'pie' && renderPieChart()}
+        {chartType === 'treemap' && renderTreemap()}
       </CardContent>
     </Card>
   )
