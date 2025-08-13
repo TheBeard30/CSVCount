@@ -34,7 +34,7 @@ export const StatsTable: React.FC<StatsTableProps> = ({ report, className }) => 
 
   if (!report || report.fieldStats.length === 0) {
     return (
-      <Card className={className}>
+      <Card className={className} data-guide="stats-table">
         <CardHeader className="flex-shrink-0">
           <CardTitle className="flex items-center space-x-2">
             <BarChart3 className="h-5 w-5" />
